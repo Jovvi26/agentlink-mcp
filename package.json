@@ -1,0 +1,26 @@
+{
+  "name": "agentlink-mcp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.0",
+    "@solana/web3.js": "^1.98.2",
+    "axios": "^1.9.0",
+    "bs58": "^6.0.0",
+    "dotenv": "^16.5.0",
+    "winston": "^3.17.0",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
