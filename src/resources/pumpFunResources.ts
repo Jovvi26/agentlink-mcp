@@ -20,7 +20,7 @@ export function createPumpFunResources(api: PumpFunAPI) {
         // Handler for token info resource
         tokenHandler: async (uri: URL, params: { address: string }) => {
             try {
-                const token = await api.getToken(params.address);
+                const token = await api.getTokenInfo(params.address);
                 return {
                     contents: [{
                         uri: uri.href,

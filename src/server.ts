@@ -2,10 +2,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 
-import { PumpFunTrading } from './providers/pumpFun';
-import { TwitterAPI } from './providers/twitter';
-import { config } from './utils/config';
-import { logger } from './utils/logger';
+import { PumpFunTrading } from './providers/pumpFun.js';
+import { TwitterAPI } from './providers/twitter.js';
+import { config } from './utils/config.js';
+import { logger } from './utils/logger.js';
 
 async function main() {
     try {
@@ -22,7 +22,7 @@ async function main() {
         logger.info('PumpFun trading module initialized successfully');
 
         // Initialize Twitter API if credentials are available
-        let twitterApi: TwitterAPI | null = null;
+        let twitterApi = null;
         if (config.TWITTER_API_KEY && config.TWITTER_API_KEY_SECRET) {
             twitterApi = new TwitterAPI(
                 config.TWITTER_API_KEY,
@@ -41,310 +41,136 @@ async function main() {
             version: config.SERVER_VERSION,
         });
 
-        // Register PumpFun tools
+        // Add tools - note the format matches exactly the examples from the SDK documentation
         server.tool(
             "search_tokens",
-            "Search for tokens on Pump.fun by name or symbol",
-            {
-                type: "object",
-                properties: {
-                    query: {
-                        type: "string",
-                        description: "Search query for token name or symbol"
-                    }
-                },
-                required: ["query"]
-            },
-            async ({ query }) => {
+            { query: z.string() },
+            async (params) => {
                 try {
-                    const tokens = await pumpFunTrading.searchTokens(query);
+                    const tokens = await pumpFunTrading.searchTokens(params.query);
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: JSON.stringify(tokens, null, 2)
-                            }
-                        ],
-                        isError: false
+                        content: [{ type: "text", text: JSON.stringify(tokens, null, 2) }]
                     };
                 } catch (error) {
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Error searching tokens: ${(error as Error).message}`
-                            }
-                        ],
+                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
                         isError: true
                     };
                 }
-            },
-            {
-                title: "Search Tokens",
-                readOnlyHint: true,
-                openWorldHint: false
             }
         );
 
         server.tool(
             "get_trending_tokens",
-            "Get trending tokens on Pump.fun",
-            {
-                type: "object",
-                properties: {}
-            },
+            {},
             async () => {
                 try {
                     const tokens = await pumpFunTrading.getTrendingTokens();
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: JSON.stringify(tokens, null, 2)
-                            }
-                        ],
-                        isError: false
+                        content: [{ type: "text", text: JSON.stringify(tokens, null, 2) }]
                     };
                 } catch (error) {
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Error fetching trending tokens: ${(error as Error).message}`
-                            }
-                        ],
+                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
                         isError: true
                     };
                 }
-            },
-            {
-                title: "Get Trending Tokens",
-                readOnlyHint: true,
-                openWorldHint: false
             }
         );
 
         server.tool(
             "get_token_info",
-            "Get detailed information about a specific token",
-            {
-                type: "object",
-                properties: {
-                    address: {
-                        type: "string",
-                        description: "Token address"
-                    }
-                },
-                required: ["address"]
-            },
-            async ({ address }) => {
+            { address: z.string() },
+            async (params) => {
                 try {
-                    const token = await pumpFunTrading.getTokenInfo(address);
+                    const token = await pumpFunTrading.getTokenInfo(params.address);
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: JSON.stringify(token, null, 2)
-                            }
-                        ],
-                        isError: false
+                        content: [{ type: "text", text: JSON.stringify(token, null, 2) }]
                     };
                 } catch (error) {
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Error fetching token info: ${(error as Error).message}`
-                            }
-                        ],
+                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
                         isError: true
                     };
                 }
-            },
-            {
-                title: "Get Token Info",
-                readOnlyHint: true,
-                openWorldHint: false
             }
         );
 
         server.tool(
             "get_token_price",
-            "Get current price of a specific token",
-            {
-                type: "object",
-                properties: {
-                    address: {
-                        type: "string",
-                        description: "Token address"
-                    }
-                },
-                required: ["address"]
-            },
-            async ({ address }) => {
+            { address: z.string() },
+            async (params) => {
                 try {
-                    const price = await pumpFunTrading.getTokenPrice(address);
+                    const price = await pumpFunTrading.getTokenPrice(params.address);
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: JSON.stringify(price, null, 2)
-                            }
-                        ],
-                        isError: false
+                        content: [{ type: "text", text: JSON.stringify(price, null, 2) }]
                     };
                 } catch (error) {
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Error fetching token price: ${(error as Error).message}`
-                            }
-                        ],
+                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
                         isError: true
                     };
                 }
-            },
-            {
-                title: "Get Token Price",
-                readOnlyHint: true,
-                openWorldHint: false
             }
         );
 
         server.tool(
             "buy_token",
-            "Buy a token on Pump.fun with a specified amount of SOL",
             {
-                type: "object",
-                properties: {
-                    address: {
-                        type: "string",
-                        description: "Token address"
-                    },
-                    solAmount: {
-                        type: "number",
-                        description: "Amount of SOL to use for purchase"
-                    },
-                    slippage: {
-                        type: "number",
-                        description: "Maximum acceptable slippage percentage (default: 1.0)"
-                    },
-                    priorityFee: {
-                        type: "number",
-                        description: "Priority fee amount (default: 0.00001)"
-                    },
-                    pool: {
-                        type: "string",
-                        description: "Trading pool to use (default: 'pump')"
-                    }
-                },
-                required: ["address", "solAmount"]
+                address: z.string(),
+                solAmount: z.number(),
+                slippage: z.number().optional(),
+                priorityFee: z.number().optional(),
+                pool: z.string().optional()
             },
-            async ({ address, solAmount, slippage = 1.0, priorityFee = 0.00001, pool = 'pump' }) => {
+            async (params) => {
                 try {
                     const transaction = await pumpFunTrading.buyToken(
-                        address,
-                        solAmount,
-                        slippage,
-                        priorityFee,
-                        pool
+                        params.address,
+                        params.solAmount,
+                        params.slippage ?? 1.0,
+                        params.priorityFee ?? 0.00001,
+                        params.pool ?? 'pump'
                     );
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Transaction initiated: ${JSON.stringify(transaction, null, 2)}`
-                            }
-                        ],
-                        isError: false
+                        content: [{ type: "text", text: `Transaction initiated: ${JSON.stringify(transaction, null, 2)}` }]
                     };
                 } catch (error) {
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Error buying token: ${(error as Error).message}`
-                            }
-                        ],
+                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
                         isError: true
                     };
                 }
-            },
-            {
-                title: "Buy Token",
-                readOnlyHint: false,
-                destructiveHint: true,
-                idempotentHint: false,
-                openWorldHint: true
             }
         );
 
         server.tool(
             "sell_token",
-            "Sell a specific amount of a token on Pump.fun",
             {
-                type: "object",
-                properties: {
-                    address: {
-                        type: "string",
-                        description: "Token address"
-                    },
-                    tokenAmount: {
-                        type: "string",
-                        description: "Amount of tokens to sell (can be a number or '100%' to sell all)"
-                    },
-                    slippage: {
-                        type: "number",
-                        description: "Maximum acceptable slippage percentage (default: 1.0)"
-                    },
-                    priorityFee: {
-                        type: "number",
-                        description: "Priority fee amount (default: 0.00001)"
-                    },
-                    pool: {
-                        type: "string",
-                        description: "Trading pool to use (default: 'pump')"
-                    }
-                },
-                required: ["address", "tokenAmount"]
+                address: z.string(),
+                tokenAmount: z.string(),
+                slippage: z.number().optional(),
+                priorityFee: z.number().optional(),
+                pool: z.string().optional()
             },
-            async ({ address, tokenAmount, slippage = 1.0, priorityFee = 0.00001, pool = 'pump' }) => {
+            async (params) => {
                 try {
                     const transaction = await pumpFunTrading.sellToken(
-                        address,
-                        tokenAmount,
-                        slippage,
-                        priorityFee,
-                        pool
+                        params.address,
+                        params.tokenAmount,
+                        params.slippage ?? 1.0,
+                        params.priorityFee ?? 0.00001,
+                        params.pool ?? 'pump'
                     );
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Transaction initiated: ${JSON.stringify(transaction, null, 2)}`
-                            }
-                        ],
-                        isError: false
+                        content: [{ type: "text", text: `Transaction initiated: ${JSON.stringify(transaction, null, 2)}` }]
                     };
                 } catch (error) {
                     return {
-                        content: [
-                            {
-                                type: "text",
-                                text: `Error selling token: ${(error as Error).message}`
-                            }
-                        ],
+                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
                         isError: true
                     };
                 }
-            },
-            {
-                title: "Sell Token",
-                readOnlyHint: false,
-                destructiveHint: true,
-                idempotentHint: false,
-                openWorldHint: true
             }
         );
 
@@ -352,145 +178,46 @@ async function main() {
         if (twitterApi) {
             server.tool(
                 "search_tweets",
-                "Search for tweets based on a query",
                 {
-                    type: "object",
-                    properties: {
-                        query: {
-                            type: "string",
-                            description: "Search query for tweets"
-                        },
-                        count: {
-                            type: "number",
-                            description: "Number of tweets to return (default: 10)"
-                        }
-                    },
-                    required: ["query"]
+                    query: z.string(),
+                    count: z.number().optional()
                 },
-                async ({ query, count = 10 }) => {
+                async (params) => {
                     try {
-                        const tweets = await twitterApi.searchTweets(query, count);
+                        const tweets = await twitterApi.searchTweets(params.query, params.count ?? 10);
                         return {
-                            content: [
-                                {
-                                    type: "text",
-                                    text: JSON.stringify(tweets, null, 2)
-                                }
-                            ],
-                            isError: false
+                            content: [{ type: "text", text: JSON.stringify(tweets, null, 2) }]
                         };
                     } catch (error) {
                         return {
-                            content: [
-                                {
-                                    type: "text",
-                                    text: `Error searching tweets: ${(error as Error).message}`
-                                }
-                            ],
+                            content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
                             isError: true
                         };
                     }
-                },
-                {
-                    title: "Search Tweets",
-                    readOnlyHint: true,
-                    openWorldHint: true
                 }
             );
 
             server.tool(
                 "post_tweet",
-                "Post a new tweet",
-                {
-                    type: "object",
-                    properties: {
-                        text: {
-                            type: "string",
-                            description: "Text content of the tweet"
-                        }
-                    },
-                    required: ["text"]
-                },
-                async ({ text }) => {
+                { text: z.string() },
+                async (params) => {
                     try {
-                        const tweet = await twitterApi.postTweet(text);
+                        const tweet = await twitterApi.postTweet(params.text);
                         return {
-                            content: [
-                                {
-                                    type: "text",
-                                    text: `Tweet posted successfully: ${JSON.stringify(tweet, null, 2)}`
-                                }
-                            ],
-                            isError: false
+                            content: [{ type: "text", text: `Tweet posted successfully: ${JSON.stringify(tweet, null, 2)}` }]
                         };
                     } catch (error) {
                         return {
-                            content: [
-                                {
-                                    type: "text",
-                                    text: `Error posting tweet: ${(error as Error).message}`
-                                }
-                            ],
+                            content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
                             isError: true
                         };
                     }
-                },
-                {
-                    title: "Post Tweet",
-                    readOnlyHint: false,
-                    destructiveHint: true,
-                    idempotentHint: false,
-                    openWorldHint: true
                 }
             );
         }
 
-        // Add a prompt for token analysis
-        server.prompt(
-            "analyze_token",
-            "Analyze a token on Pump.fun",
-            [
-                {
-                    name: "address",
-                    description: "Token address to analyze",
-                    required: true
-                }
-            ],
-            ({ address }) => ({
-                messages: [
-                    {
-                        role: "user",
-                        content: {
-                            type: "text",
-                            text: `Please analyze this token with address ${address}. Get the token information, and provide insights about its price, market cap, and trading volume if available.`
-                        }
-                    }
-                ]
-            })
-        );
-
-        // Add a prompt for trending token analysis
-        server.prompt(
-            "analyze_trending_tokens",
-            "Analyze trending tokens on Pump.fun",
-            [],
-            () => ({
-                messages: [
-                    {
-                        role: "user",
-                        content: {
-                            type: "text",
-                            text: "Please analyze the currently trending tokens on Pump.fun. Provide insights about their prices, market caps, and trading volumes if available."
-                        }
-                    }
-                ]
-            })
-        );
-
         // Create transport and connect
         const transport = new StdioServerTransport();
-
-        // Connect server to transport
         await server.connect(transport);
 
         logger.info('AgentLink MCP Server started successfully');

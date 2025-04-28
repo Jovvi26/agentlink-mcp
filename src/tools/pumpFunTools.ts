@@ -105,7 +105,7 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
             },
             handler: async ({ address }: { address: string }) => {
                 try {
-                    const token = await api.getToken(address);
+                    const token = await api.getTokenInfo(address);
                     return {
                         content: [
                             {
