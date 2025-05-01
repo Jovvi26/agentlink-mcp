@@ -137,6 +137,8 @@ The server will be available for MCP clients to connect to via stdio (standard i
 
 ## Testing
 
+### Using TypeScript Test Client
+
 The project includes a test directory with a TypeScript client for testing the MCP server:
 
 ```bash
@@ -150,11 +152,43 @@ This will:
 2. List available tools
 3. Test the token info functionality
 
-For additional testing, you can use the MCP Inspector (requires Node.js v22.7.5+):
+### Using MCP Inspector
+
+For a richer testing experience, you can use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which provides a visual interface for interacting with your MCP server:
 
 ```bash
-npx @modelcontextprotocol/inspector -e WALLET_PUBLIC_KEY=$YOUR_KEY -e WALLET_PRIVATE_KEY=$YOUR_PRIVATE_KEY node build/server.js
+# Requires Node.js v22.7.5+
+npx @modelcontextprotocol/inspector node build/server.js
 ```
+
+This will:
+1. Start your MCP server
+2. Launch the MCP Inspector at http://127.0.0.1:6274
+3. Open your browser to the inspector interface
+
+#### Using the MCP Inspector Interface
+
+1. **Connect to your server**:
+   - The inspector should automatically connect to your server
+   - Ensure "STDIO" is selected as the Transport Type
+   - You should see "Connected" status at the bottom of the sidebar
+
+2. **Test tools**:
+   - Click on the "Tools" tab to see available tools
+   - Select a tool from the list (e.g., "get_token_info")
+   - Enter the required parameters (e.g., a token address)
+   - Click "Run Tool" to execute
+   - View the results in the response panel
+
+3. **Review history**:
+   - The History section shows all previous requests
+   - Click on any request to see its details
+
+4. **Environment variables**:
+   - Use the "Environment Variables" dropdown to set or modify environment variables
+   - This is useful for providing your wallet keys and API keys
+
+The MCP Inspector provides a comprehensive way to test all aspects of your MCP server, including tools, resources, and prompts.
 
 ## MCP Protocol
 
@@ -204,3 +238,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Pump.fun](https://pump.fun) - For the token trading API
 - [Moralis](https://moralis.io) - For Solana blockchain data retrieval
 - [Twitter](https://developer.twitter.com) - For the Twitter API
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) - For the testing interface
