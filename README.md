@@ -84,6 +84,7 @@ sequenceDiagram
 - Solana wallet
 - Moralis API key (for retrieving token metadata from Solana)
 - Twitter API credentials (optional, for Twitter functionality)
+- Claude for Desktop (for using with Claude)
 
 ## Installation
 
@@ -190,6 +191,17 @@ This will:
 
 The MCP Inspector provides a comprehensive way to test all aspects of your MCP server, including tools, resources, and prompts.
 
+## Example Interactions with Claude
+
+Once your AgentLink MCP server is connected to Claude, you can use natural language to access its capabilities:
+
+- "Can you search for tweets about Solana NFTs?"
+- "What are the trending tokens on Pump.fun today?"
+- "I'd like to get information about a specific token on Solana. The address is..."
+- "Could you help me buy some SOL tokens?"
+
+Claude will automatically identify when to use the appropriate tools provided by your AgentLink MCP server.
+
 ## MCP Protocol
 
 This server implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) which standardizes how Large Language Models (LLMs) interact with external tools and resources. The protocol enables:
@@ -198,6 +210,79 @@ This server implements the [Model Context Protocol (MCP)](https://modelcontextpr
 - Dynamic discovery of capabilities
 - Structured data exchange
 - Secure authorization flows
+
+## Claude for Desktop Integration
+
+To use the AgentLink MCP Server with Claude for Desktop, follow these steps:
+
+### 1. Configure Claude for Desktop
+
+Create or edit the Claude for Desktop configuration file:
+
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json` 
+
+Add the following configuration to connect Claude to your AgentLink MCP server:
+
+```json
+{
+  "mcpServers": {
+    "agentlink": {
+      "command": "node",
+      "args": [
+        "/path/to/your/agentlink-mcp/mcp-startup.js"
+      ],
+      "cwd": "/path/to/your/agentlink-mcp"
+    }
+  }
+}
+```
+
+Replace `/path/to/your/agentlink-mcp` with the actual path to your project directory.
+
+#### Example paths:
+
+- **macOS**: `/Users/username/projects/agentlink-mcp`
+- **Windows**: `C:\\Users\\username\\projects\\agentlink-mcp`
+
+### 2. Restart Claude for Desktop
+
+After setting up the configuration file, restart Claude for Desktop completely. This ensures Claude loads your MCP server configuration.
+
+### 3. Connect to the Server
+
+1. Open Claude for Desktop
+2. Click on the settings/preferences icon in the lower left corner
+3. In the menu that appears, locate and click on "agentlink" under the connected servers section
+
+You'll know the server is connected properly when you can see "agentlink" in the preferences menu.
+
+### 4. Troubleshooting
+
+If you don't see "agentlink" in the preferences menu:
+
+- Check the Claude for Desktop logs:
+  - **macOS**: `~/Library/Logs/Claude/mcp*.log`
+  - **Windows**: `%APPDATA%\Claude\logs\mcp*.log`
+
+- Verify your server is running properly with the MCP Inspector (see Testing section)
+
+- Ensure your file paths in `claude_desktop_config.json` are correct and use absolute paths
+
+- Make sure your environment variables are set up correctly
+
+- On Windows, you may need to use double backslashes in paths (`\\`) or forward slashes (`/`)
+
+## Example Interactions with Claude
+
+Once your AgentLink MCP server is connected to Claude, you can use natural language to access its capabilities:
+
+- "Can you search for tweets about Solana NFTs?"
+- "What are the trending tokens on Pump.fun today?"
+- "I'd like to get information about a specific token on Solana. The address is..."
+- "Could you help me buy some SOL tokens?"
+
+Claude will automatically identify when to use the appropriate tools provided by your AgentLink MCP server.
 
 ## API Documentation
 
@@ -239,3 +324,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Moralis](https://moralis.io) - For Solana blockchain data retrieval
 - [Twitter](https://developer.twitter.com) - For the Twitter API
 - [MCP Inspector](https://github.com/modelcontextprotocol/inspector) - For the testing interface
+- [Claude for Desktop](https://claude.ai/download) - For AI assistant integration
