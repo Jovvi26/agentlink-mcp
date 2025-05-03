@@ -70,4 +70,41 @@ export class MoralisAPI {
             throw new Error(`Failed to get token price: ${error}`);
         }
     }
+
+    /**
+     * Get graduated tokens from Pump.fun via Moralis API
+     * @param limit The number of tokens to return (default 100)
+     * @param cursor Pagination cursor for retrieving more results
+     * @returns List of tokens that have graduated from the bonding phase
+     */
+    async getGraduatedTokens(limit: number = 100, cursor?: string): Promise<any> {
+        try {
+            logger.info(`Getting graduated tokens from Moralis API, limit: ${limit}${cursor ? ', cursor: ' + cursor : ''}`);
+
+            // Construct URL with optional cursor parameter
+            let url = `https://solana-gateway.moralis.io/token/mainnet/exchange/pumpfun/graduated?limit=${limit}`;
+            if (cursor) {
+                url += `&cursor=${cursor}`;
+            }
+
+            const response = await axios.get(
+                url,
+                {
+                    headers: {
+                        'accept': 'application/json',
+                        'X-API-Key': this.apiKey
+                    }
+                }
+            );
+
+            if (response.status !== 200) {
+                throw new Error(`API error: ${response.statusText}`);
+            }
+
+            return response.data;
+        } catch (error) {
+            logger.error(`Failed to get graduated tokens from Moralis: ${error}`);
+            throw new Error(`Failed to get graduated tokens: ${error}`);
+        }
+    }
 }

@@ -89,13 +89,15 @@ async function main() {
                     }
                 );
 
-                // Add other PumpFun tools...
                 server.tool(
-                    "get_trending_tokens",
-                    {},
-                    async () => {
+                    "get_graduated_tokens",
+                    {
+                        limit: z.number().optional(),
+                        cursor: z.string().optional()
+                    },
+                    async (params) => {
                         try {
-                            const tokens = await pumpFunTrading!.getTrendingTokens();
+                            const tokens = await pumpFunTrading!.getGraduatedTokens(params.limit, params.cursor);
                             return {
                                 content: [{ type: "text", text: JSON.stringify(tokens, null, 2) }]
                             };

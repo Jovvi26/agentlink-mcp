@@ -47,21 +47,30 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
             }
         },
 
-        getTrendingTokens: {
-            name: "get_trending_tokens",
-            description: "Get trending tokens on Pump.fun",
+        getGraduatedTokens: {
+            name: "get_graduated_tokens",
+            description: "Get tokens that have graduated from the bonding phase on Pump.fun",
             inputSchema: {
                 type: "object",
-                properties: {}
+                properties: {
+                    limit: {
+                        type: "number",
+                        description: "Number of tokens to return (default: 100)"
+                    },
+                    cursor: {
+                        type: "string",
+                        description: "Pagination cursor for retrieving more results"
+                    }
+                }
             },
             annotations: {
-                title: "Get Trending Tokens",
+                title: "Get Graduated Tokens",
                 readOnlyHint: true,
                 openWorldHint: false
             },
-            handler: async () => {
+            handler: async ({ limit = 100, cursor }: { limit?: number, cursor?: string }) => {
                 try {
-                    const tokens = await api.getTrendingTokens();
+                    const tokens = await trading.getGraduatedTokens(limit, cursor);
                     return {
                         content: [
                             {
@@ -76,7 +85,7 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
                         content: [
                             {
                                 type: "text",
-                                text: `Error fetching trending tokens: ${(error as Error).message}`
+                                text: `Error fetching graduated tokens: ${(error as Error).message}`
                             }
                         ],
                         isError: true
@@ -129,6 +138,50 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
             }
         },
 
+        getTokenPrice: {
+            name: "get_token_price",
+            description: "Get price information for a specific token",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    address: {
+                        type: "string",
+                        description: "Token address"
+                    }
+                },
+                required: ["address"]
+            },
+            annotations: {
+                title: "Get Token Price",
+                readOnlyHint: true,
+                openWorldHint: false
+            },
+            handler: async ({ address }: { address: string }) => {
+                try {
+                    const price = await trading.getTokenPrice(address);
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: JSON.stringify(price, null, 2)
+                            }
+                        ],
+                        isError: false
+                    };
+                } catch (error) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: `Error fetching token price: ${(error as Error).message}`
+                            }
+                        ],
+                        isError: true
+                    };
+                }
+            }
+        },
+
         buyToken: {
             name: "buy_token",
             description: "Buy a token on Pump.fun with a specified amount of SOL",
@@ -142,6 +195,18 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
                     solAmount: {
                         type: "number",
                         description: "Amount of SOL to use for purchase"
+                    },
+                    slippage: {
+                        type: "number",
+                        description: "Allowed slippage percentage (default: 1.0)"
+                    },
+                    priorityFee: {
+                        type: "number",
+                        description: "Transaction priority fee (default: 0.00001)"
+                    },
+                    pool: {
+                        type: "string",
+                        description: "Pool to use (default: 'pump')"
                     }
                 },
                 required: ["address", "solAmount"]
@@ -153,9 +218,10 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
                 idempotentHint: false,
                 openWorldHint: true
             },
-            handler: async ({ address, solAmount }: { address: string, solAmount: number }) => {
+            handler: async ({ address, solAmount, slippage = 1.0, priorityFee = 0.00001, pool = 'pump' }:
+                { address: string, solAmount: number, slippage?: number, priorityFee?: number, pool?: string }) => {
                 try {
-                    const transaction = await trading.buyToken(address, solAmount);
+                    const transaction = await trading.buyToken(address, solAmount, slippage, priorityFee, pool);
                     return {
                         content: [
                             {
@@ -190,8 +256,20 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
                         description: "Token address"
                     },
                     tokenAmount: {
+                        type: "string",
+                        description: "Amount of tokens to sell (can be a number or '100%' to sell all)"
+                    },
+                    slippage: {
                         type: "number",
-                        description: "Amount of tokens to sell"
+                        description: "Allowed slippage percentage (default: 1.0)"
+                    },
+                    priorityFee: {
+                        type: "number",
+                        description: "Transaction priority fee (default: 0.00001)"
+                    },
+                    pool: {
+                        type: "string",
+                        description: "Pool to use (default: 'pump')"
                     }
                 },
                 required: ["address", "tokenAmount"]
@@ -203,9 +281,10 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
                 idempotentHint: false,
                 openWorldHint: true
             },
-            handler: async ({ address, tokenAmount }: { address: string, tokenAmount: number }) => {
+            handler: async ({ address, tokenAmount, slippage = 1.0, priorityFee = 0.00001, pool = 'pump' }:
+                { address: string, tokenAmount: string, slippage?: number, priorityFee?: number, pool?: string }) => {
                 try {
-                    const transaction = await trading.sellToken(address, tokenAmount);
+                    const transaction = await trading.sellToken(address, tokenAmount, slippage, priorityFee, pool);
                     return {
                         content: [
                             {

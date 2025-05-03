@@ -1,18 +1,18 @@
-import { PumpFunAPI } from '../providers/pumpFun';
+import { PumpFunAPI, PumpFunTrading } from '../providers/pumpFun';
 import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 
-export function createPumpFunResources(api: PumpFunAPI) {
+export function createPumpFunResources(api: PumpFunAPI, trading?: PumpFunTrading) {
     // Resource for token info
     const tokenResource = new ResourceTemplate(
         "token://{address}",
         { list: undefined }
     );
 
-    // Resource for trending tokens
-    const trendingResource = {
-        uri: "token://trending",
-        name: "Trending Tokens",
-        description: "List of currently trending tokens on Pump.fun"
+    // Resource for graduated tokens (replacing trending tokens)
+    const graduatedResource = {
+        uri: "token://graduated",
+        name: "Graduated Tokens",
+        description: "List of tokens that have completed the bonding phase on Pump.fun"
     };
 
     // Handlers
@@ -33,19 +33,35 @@ export function createPumpFunResources(api: PumpFunAPI) {
             }
         },
 
-        // Handler for trending tokens resource
-        trendingHandler: async (uri: URL) => {
+        // Handler for graduated tokens resource
+        graduatedHandler: async (uri: URL, params: { limit?: string, cursor?: string }) => {
             try {
-                const tokens = await api.getTrendingTokens();
-                return {
-                    contents: [{
-                        uri: uri.href,
-                        text: JSON.stringify(tokens, null, 2),
-                        mimeType: "application/json"
-                    }]
-                };
+                // If trading is available, use it to get graduated tokens
+                if (trading) {
+                    const limit = params.limit ? parseInt(params.limit, 10) : 100;
+                    const tokens = await trading.getGraduatedTokens(limit, params.cursor);
+                    return {
+                        contents: [{
+                            uri: uri.href,
+                            text: JSON.stringify(tokens, null, 2),
+                            mimeType: "application/json"
+                        }]
+                    };
+                } else {
+                    // Fallback if trading is not available
+                    return {
+                        contents: [{
+                            uri: uri.href,
+                            text: JSON.stringify({
+                                result: [],
+                                note: "PumpFunTrading module not available. Unable to fetch graduated tokens."
+                            }, null, 2),
+                            mimeType: "application/json"
+                        }]
+                    };
+                }
             } catch (error) {
-                throw new Error(`Error fetching trending tokens: ${(error as Error).message}`);
+                throw new Error(`Error fetching graduated tokens: ${(error as Error).message}`);
             }
         }
     };
@@ -53,7 +69,7 @@ export function createPumpFunResources(api: PumpFunAPI) {
     return {
         resources: {
             tokenResource,
-            trendingResource
+            graduatedResource
         },
         handlers: resourceHandlers
     };

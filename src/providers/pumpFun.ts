@@ -149,26 +149,6 @@ export class PumpFunAPI {
     }
 
     /**
-     * Get trending tokens on Pump.fun
-     * @returns Array of trending tokens
-     */
-    async getTrendingTokens(): Promise<TokenInfo[]> {
-        logger.info("Fetching trending tokens");
-
-        // Mock implementation
-        return [
-            {
-                address: "trending123456789",
-                name: "Trending Token",
-                symbol: "TRND",
-                decimals: 9,
-                price: 0.0002,
-                volume24h: 1000000,
-            }
-        ];
-    }
-
-    /**
      * Generate a buy transaction that can be signed and sent
      * @param tokenAddress The contract address of the token
      * @param amount The amount to buy
@@ -385,11 +365,42 @@ export class PumpFunTrading {
     }
 
     /**
-     * Get trending tokens
-     * @returns List of trending tokens
+     * Get graduated tokens from Pump.fun via Moralis API
+     * @param limit The number of tokens to return (default 100)
+     * @param cursor Pagination cursor for retrieving more results
+     * @returns List of tokens that have graduated from the bonding phase
      */
-    async getTrendingTokens(): Promise<TokenInfo[]> {
-        return this.api.getTrendingTokens();
+    async getGraduatedTokens(limit: number = 100, cursor?: string): Promise<any> {
+        // Try to get graduated tokens from Moralis if available
+        if (this.moralisApi) {
+            try {
+                const graduatedTokens = await this.moralisApi.getGraduatedTokens(limit, cursor);
+                logger.info(`Retrieved graduated tokens from Moralis API`);
+                return graduatedTokens;
+            } catch (error) {
+                logger.warn(`Failed to get graduated tokens from Moralis: ${error}`);
+            }
+        }
+
+        // Fall back to placeholder data if Moralis fails or isn't available
+        logger.warn('Moralis API not available or failed. Returning placeholder data for graduated tokens.');
+        return {
+            result: [
+                {
+                    tokenAddress: "placeholder123456789",
+                    name: "Placeholder Token",
+                    symbol: "PLACE",
+                    logo: "",
+                    decimals: "9",
+                    priceNative: "0.000001",
+                    priceUsd: "0.00015",
+                    liquidity: "10000",
+                    fullyDilutedValuation: "150000",
+                    graduatedAt: new Date().toISOString()
+                }
+            ],
+            note: "Placeholder data. For real graduated token data, please provide a valid Moralis API key."
+        };
     }
 
     /**
