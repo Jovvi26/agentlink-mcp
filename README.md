@@ -28,13 +28,15 @@ graph TD
 
 - **Pump.fun Integration**: Trade tokens on Solana using Pump.fun
   - Search for tokens
-  - Get trending tokens
+  - Get graduated tokens (completed bonding phase)
+  - Get bonding tokens (currently in bonding phase)
   - Buy tokens
   - Sell tokens
 
 - **Moralis API Integration**:
   - Enhanced token metadata retrieval from Solana blockchain
   - Token price information
+  - Bonding curve progress data
   - Token details and supply data
 
 - **Twitter Integration**:
@@ -55,7 +57,7 @@ sequenceDiagram
     LLM->>MCP: initialize()
     MCP-->>LLM: capabilities{tools}
     LLM->>MCP: listTools()
-    MCP-->>LLM: [search_tokens, get_trending_tokens, ...]
+    MCP-->>LLM: [search_tokens, get_graduated_tokens, get_bonding_tokens, ...]
     
     LLM->>MCP: callTool(get_token_info, {address})
     MCP->>MO: getTokenMetadata(address)
@@ -63,6 +65,16 @@ sequenceDiagram
     SOL-->>MO: tokenData
     MO-->>MCP: tokenMetadata
     MCP-->>LLM: tokenInfo
+    
+    LLM->>MCP: callTool(get_graduated_tokens, {limit})
+    MCP->>MO: getGraduatedTokens(limit)
+    MO-->>MCP: graduatedTokens[]
+    MCP-->>LLM: graduatedTokensResult
+    
+    LLM->>MCP: callTool(get_bonding_tokens, {limit})
+    MCP->>MO: getBondingTokens(limit)
+    MO-->>MCP: bondingTokens[]
+    MCP-->>LLM: bondingTokensResult
     
     LLM->>MCP: callTool(buy_token, {address, amount})
     MCP->>PF: generateBuyTransaction()
@@ -196,7 +208,8 @@ The MCP Inspector provides a comprehensive way to test all aspects of your MCP s
 Once your AgentLink MCP server is connected to Claude, you can use natural language to access its capabilities:
 
 - "Can you search for tweets about Solana NFTs?"
-- "What are the trending tokens on Pump.fun today?"
+- "What tokens have recently graduated from the bonding phase on Pump.fun?"
+- "Show me tokens that are currently in the bonding phase on Pump.fun"
 - "I'd like to get information about a specific token on Solana. The address is..."
 - "Could you help me buy some SOL tokens?"
 
@@ -273,17 +286,6 @@ If you don't see "agentlink" in the preferences menu:
 
 - On Windows, you may need to use double backslashes in paths (`\\`) or forward slashes (`/`)
 
-## Example Interactions with Claude
-
-Once your AgentLink MCP server is connected to Claude, you can use natural language to access its capabilities:
-
-- "Can you search for tweets about Solana NFTs?"
-- "What are the trending tokens on Pump.fun today?"
-- "I'd like to get information about a specific token on Solana. The address is..."
-- "Could you help me buy some SOL tokens?"
-
-Claude will automatically identify when to use the appropriate tools provided by your AgentLink MCP server.
-
 ## API Documentation
 
 ### Pump.fun Tools
@@ -291,7 +293,8 @@ Claude will automatically identify when to use the appropriate tools provided by
 | Tool | Description | Parameters |
 |------|-------------|------------|
 | `search_tokens` | Search for tokens by name or symbol | `query` (string) |
-| `get_trending_tokens` | Get trending tokens on Pump.fun | none |
+| `get_graduated_tokens` | Get tokens that have completed the bonding phase | `limit` (number, optional)<br>`cursor` (string, optional) |
+| `get_bonding_tokens` | Get tokens currently in the bonding phase | `limit` (number, optional)<br>`cursor` (string, optional) |
 | `buy_token` | Buy a token with SOL | `address` (string, required)<br>`solAmount` (number, required)<br>`slippage` (number, optional)<br>`priorityFee` (number, optional)<br>`pool` (string, optional) |
 | `sell_token` | Sell a token | `address` (string, required)<br>`tokenAmount` (string, required)<br>`slippage` (number, optional)<br>`priorityFee` (number, optional)<br>`pool` (string, optional) |
 
@@ -308,6 +311,26 @@ Claude will automatically identify when to use the appropriate tools provided by
 |------|-------------|------------|
 | `search_tweets` | Search for tweets based on a query | `query` (string, required)<br>`count` (number, optional) |
 | `post_tweet` | Post a new tweet | `text` (string, required) |
+
+## Token Lifecycle on Pump.fun
+
+### Bonding Phase
+Tokens on Pump.fun begin in a **bonding phase** where price is determined by a bonding curve. During this phase:
+
+- Tokens are minted as users buy them
+- Price increases according to a predefined curve
+- The `bondingCurveProgress` property indicates how close a token is to graduation (0-100%)
+- Higher bonding curve progress means the token is closer to graduation
+
+### Graduated Phase
+Once a token completes its bonding phase, it **graduates** to a liquid trading phase where:
+
+- Token supply is fixed
+- Price is determined by market demand via liquidity pools
+- Tokens can be freely traded
+- Graduation timestamp indicates when the token completed bonding
+
+The `get_bonding_tokens` and `get_graduated_tokens` tools allow you to track tokens in each phase of their lifecycle on Pump.fun.
 
 ## Contributing
 
