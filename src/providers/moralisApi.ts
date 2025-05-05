@@ -107,4 +107,41 @@ export class MoralisAPI {
             throw new Error(`Failed to get graduated tokens: ${error}`);
         }
     }
+
+    /**
+     * Get tokens currently in the bonding phase from Pump.fun via Moralis API
+     * @param limit The number of tokens to return (default 100)
+     * @param cursor Pagination cursor for retrieving more results
+     * @returns List of tokens currently in the bonding phase with progress information
+     */
+    async getBondingTokens(limit: number = 100, cursor?: string): Promise<any> {
+        try {
+            logger.info(`Getting bonding tokens from Moralis API, limit: ${limit}${cursor ? ', cursor: ' + cursor : ''}`);
+
+            // Construct URL with optional cursor parameter
+            let url = `https://solana-gateway.moralis.io/token/mainnet/exchange/pumpfun/bonding?limit=${limit}`;
+            if (cursor) {
+                url += `&cursor=${cursor}`;
+            }
+
+            const response = await axios.get(
+                url,
+                {
+                    headers: {
+                        'accept': 'application/json',
+                        'X-API-Key': this.apiKey
+                    }
+                }
+            );
+
+            if (response.status !== 200) {
+                throw new Error(`API error: ${response.statusText}`);
+            }
+
+            return response.data;
+        } catch (error) {
+            logger.error(`Failed to get bonding tokens from Moralis: ${error}`);
+            throw new Error(`Failed to get bonding tokens: ${error}`);
+        }
+    }
 }

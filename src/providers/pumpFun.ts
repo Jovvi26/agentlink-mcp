@@ -404,6 +404,45 @@ export class PumpFunTrading {
     }
 
     /**
+     * Get tokens currently in the bonding phase from Pump.fun via Moralis API
+     * @param limit The number of tokens to return (default 100)
+     * @param cursor Pagination cursor for retrieving more results
+     * @returns List of tokens currently in the bonding phase with progress information
+     */
+    async getBondingTokens(limit: number = 100, cursor?: string): Promise<any> {
+        // Try to get bonding tokens from Moralis if available
+        if (this.moralisApi) {
+            try {
+                const bondingTokens = await this.moralisApi.getBondingTokens(limit, cursor);
+                logger.info(`Retrieved bonding tokens from Moralis API`);
+                return bondingTokens;
+            } catch (error) {
+                logger.warn(`Failed to get bonding tokens from Moralis: ${error}`);
+            }
+        }
+
+        // Fall back to placeholder data if Moralis fails or isn't available
+        logger.warn('Moralis API not available or failed. Returning placeholder data for bonding tokens.');
+        return {
+            result: [
+                {
+                    tokenAddress: "placeholder123456789",
+                    name: "Placeholder Bonding Token",
+                    symbol: "BOND",
+                    logo: "",
+                    decimals: "9",
+                    priceNative: "0.000001",
+                    priceUsd: "0.00015",
+                    liquidity: "10000",
+                    fullyDilutedValuation: "150000",
+                    bondingCurveProgress: 45.75
+                }
+            ],
+            note: "Placeholder data. For real bonding token data, please provide a valid Moralis API key."
+        };
+    }
+
+    /**
      * Buy a token on Pump.fun
      * @param tokenAddress The contract address of the token
      * @param amount Amount in SOL to spend

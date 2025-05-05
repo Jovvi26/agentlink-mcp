@@ -94,6 +94,53 @@ export function createPumpFunTools(api: PumpFunAPI, trading: PumpFunTrading) {
             }
         },
 
+        getBondingTokens: {
+            name: "get_bonding_tokens",
+            description: "Get tokens currently in the bonding phase on Pump.fun",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    limit: {
+                        type: "number",
+                        description: "Number of tokens to return (default: 100)"
+                    },
+                    cursor: {
+                        type: "string",
+                        description: "Pagination cursor for retrieving more results"
+                    }
+                }
+            },
+            annotations: {
+                title: "Get Bonding Tokens",
+                readOnlyHint: true,
+                openWorldHint: false
+            },
+            handler: async ({ limit = 100, cursor }: { limit?: number, cursor?: string }) => {
+                try {
+                    const tokens = await trading.getBondingTokens(limit, cursor);
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: JSON.stringify(tokens, null, 2)
+                            }
+                        ],
+                        isError: false
+                    };
+                } catch (error) {
+                    return {
+                        content: [
+                            {
+                                type: "text",
+                                text: `Error fetching bonding tokens: ${(error as Error).message}`
+                            }
+                        ],
+                        isError: true
+                    };
+                }
+            }
+        },
+
         getTokenInfo: {
             name: "get_token_info",
             description: "Get detailed information about a specific token",

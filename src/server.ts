@@ -111,6 +111,27 @@ async function main() {
                 );
 
                 server.tool(
+                    "get_bonding_tokens",
+                    {
+                        limit: z.number().optional(),
+                        cursor: z.string().optional()
+                    },
+                    async (params) => {
+                        try {
+                            const tokens = await pumpFunTrading!.getBondingTokens(params.limit, params.cursor);
+                            return {
+                                content: [{ type: "text", text: JSON.stringify(tokens, null, 2) }]
+                            };
+                        } catch (error) {
+                            return {
+                                content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                                isError: true
+                            };
+                        }
+                    }
+                );
+
+                server.tool(
                     "get_token_info",
                     { address: z.string() },
                     async (params) => {
