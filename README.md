@@ -1,8 +1,9 @@
 # 🚀 AGENTLINK - AI-Powered Solana Trading Terminal
 
-<div align="center">
+<p align="center">
+  <img src="assets/logo.jpg" alt="AGENTLINK" width="800" />
+</p>
 
-![AGENTLINK Logo](https://via.placeholder.com/800x200/6366f1/ffffff?text=AGENTLINK)
 
 **The Next Generation AI Trading Bot for Solana & Pump.fun**
 
@@ -11,7 +12,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
 [![Redis](https://img.shields.io/badge/Redis-7.0+-red)](https://redis.io/)
 
-[Features](#-features) • [Getting Started](#-getting-started) • [Documentation](#-documentation) • [Roadmap](#-roadmap) • [Community](#-community)
+[Features](#-features) • [Getting Started](#-getting-started) • [Documentation](#-documentation) • [Community](#-community)
 
 </div>
 
@@ -334,10 +335,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🌐 Community & Support
+## 🌐 Community 
 
-- **Discord**: [Join our community](https://discord.gg/AGENTLINK)
-- **Twitter**: [@AGENTLINKAI](https://twitter.com/AGENTLINKai)
+- **X**: [@AGENTLINKAI](https://twitter.com/AGENTLINK_ai)
 - **Documentation**: [docs.AGENTLINK.io](https://docs.AGENTLINK.io)
 - **Support**: support@AGENTLINK.io
 
@@ -363,6 +363,6 @@ AGENTLINK is a trading tool and does not provide financial advice. Cryptocurrenc
 
 **Built with ❤️ by the AGENTLINK Team**
 
-[Website](https://AGENTLINK.io) • [Documentation](https://docs.AGENTLINK.io) • [Twitter](https://twitter.com/AGENTLINKai) • [Discord](https://discord.gg/AGENTLINK)
+[Website](https://AGENTLINK.io) • [Documentation](https://docs.AGENTLINK.io) • [Twitter](https://twitter.com/AGENTLINK_ai) 
 
 </div>
