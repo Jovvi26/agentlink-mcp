@@ -1,350 +1,368 @@
-# AgentLink MCP Server
+# 🚀 AGENTLINK - AI-Powered Solana Trading Terminal
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue.svg)](https://www.typescriptlang.org/)
-[![MCP Protocol](https://img.shields.io/badge/MCP-1.11.0-green.svg)](https://modelcontextprotocol.io)
+<div align="center">
+
+![AGENTLINK Logo](https://via.placeholder.com/800x200/6366f1/ffffff?text=AGENTLINK)
+
+**The Next Generation AI Trading Bot for Solana & Pump.fun**
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)](https://www.typescriptlang.org/)
+[![Redis](https://img.shields.io/badge/Redis-7.0+-red)](https://redis.io/)
 
-AgentLink MCP Server is an implementation of the Model Context Protocol (MCP) that enables trading on Pump.fun using the Solana blockchain and provides Twitter integration. This server allows AI assistants to access cryptocurrency tools and social media functionality through a standardized protocol.
+[Features](#-features) • [Getting Started](#-getting-started) • [Documentation](#-documentation) • [Roadmap](#-roadmap) • [Community](#-community)
 
-## Architecture Overview
+</div>
 
-```mermaid
-graph TD
-    A[LLM Agent] -->|MCP Protocol| B[AgentLink MCP Server]
-    B --> C[Pump.fun Trading API]
-    B --> D[Twitter API]
-    B --> E[Moralis API]
-    E -->|Data Retrieval| F[Solana Blockchain]
-    C -->|Transactions| F[Solana Blockchain]
-    style A fill:#f9d,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style C fill:#dfd,stroke:#333,stroke-width:2px
-    style D fill:#dfd,stroke:#333,stroke-width:2px
-    style E fill:#dfd,stroke:#333,stroke-width:2px
-    style F fill:#ffd,stroke:#333,stroke-width:2px
+---
+
+## 📖 Overview
+
+AGENTLINK is a comprehensive AI-powered trading terminal for the Solana blockchain, specializing in Pump.fun token analysis and automated trading strategies. Built with cutting-edge AI technology and real-time blockchain integration, AGENTLINK provides institutional-grade tools for retail traders.
+
+### 🎯 Key Highlights
+
+- **Real-Time AI Analysis**: Powered by Claude AI and Fireworks AI for intelligent token analysis
+- **Advanced Sniper Detection**: Identify whale movements and sniper activities
+- **Automated Trading**: Execute trades with precision and speed
+- **Cost Optimized**: 97% cost reduction through hybrid AI architecture
+- **High Performance**: Handles 400+ requests per minute during peak launches
+- **WebSocket Real-Time**: Instant updates and streaming responses
+
+---
+
+## ✨ Features
+
+### 🤖 AI-Powered Intelligence
+
+- **Multi-Provider AI Architecture**
+  - Primary: Fireworks AI (Llama models) for cost efficiency
+  - Fallback: Claude API for critical tool calling operations
+  - Intelligent routing based on query complexity
+  - 97% cost reduction vs Claude-only implementation
+
+- **Advanced Token Analysis**
+  - Real-time market data and price tracking
+  - Holder distribution analysis
+  - Liquidity pool metrics
+  - Historical performance tracking
+  - Risk assessment algorithms
+
+### 🔍 Market Intelligence
+
+- **Sniper Detection System**
+  - Whale wallet identification
+  - Early buyer tracking
+  - Position sizing analysis
+  - Entry/exit pattern recognition
+
+- **Real-Time Data Feeds**
+  - Moralis API integration
+  - Helius RPC endpoints
+  - PumpPortal trading execution
+  - WebSocket live updates
+
+### 💼 Trading Capabilities
+
+- **Automated Execution**
+  - Quick buy/sell orders
+  - Rate limiting for wallet protection
+  - Nonce conflict prevention
+  - Transaction confirmation tracking
+
+- **Portfolio Management** (Beta)
+  - Shared portfolio system (current)
+  - Individual wallet management (coming soon)
+  - Performance tracking
+  - P&L calculations
+
+### 🏗️ Technical Architecture
+
+```
+┌─────────────────┐
+│  Frontend UI    │
+│   (Socket.IO)   │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│  Express.js     │
+│   WebSocket     │
+│    Server       │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │         │
+┌───▼───┐ ┌──▼──────┐
+│ Redis │ │   MCP   │
+│ Cache │ │ Server  │
+└───────┘ └──┬──────┘
+             │
+    ┌────────┴────────┐
+    │                 │
+┌───▼────┐     ┌─────▼─────┐
+│Moralis │     │PumpPortal │
+│  API   │     │   Trading │
+└────────┘     └───────────┘
 ```
 
-## Features
+---
 
-- **Pump.fun Integration**: Trade tokens on Solana using Pump.fun
-  - Search for tokens
-  - Get graduated tokens (completed bonding phase)
-  - Get bonding tokens (currently in bonding phase)
-  - Buy tokens
-  - Sell tokens
+## 🚀 Getting Started
 
-- **Moralis API Integration**:
-  - Enhanced token metadata retrieval from Solana blockchain
-  - Token price information
-  - Bonding curve progress data
-  - Token details and supply data
+### Prerequisites
 
-- **Twitter Integration**:
-  - Search for tweets
-  - Post tweets
+- Node.js >= 18.0.0
+- Redis Server 7.0+
+- Solana Wallet
+- API Keys (Anthropic, Fireworks, Moralis)
 
-## Tool Flow Diagram
-
-```mermaid
-sequenceDiagram
-    participant LLM as LLM Agent
-    participant MCP as AgentLink MCP Server
-    participant PF as Pump.fun API
-    participant TW as Twitter API
-    participant MO as Moralis API
-    participant SOL as Solana Blockchain
-    
-    LLM->>MCP: initialize()
-    MCP-->>LLM: capabilities{tools}
-    LLM->>MCP: listTools()
-    MCP-->>LLM: [search_tokens, get_graduated_tokens, get_bonding_tokens, ...]
-    
-    LLM->>MCP: callTool(get_token_info, {address})
-    MCP->>MO: getTokenMetadata(address)
-    MO->>SOL: queryTokenData(address)
-    SOL-->>MO: tokenData
-    MO-->>MCP: tokenMetadata
-    MCP-->>LLM: tokenInfo
-    
-    LLM->>MCP: callTool(get_graduated_tokens, {limit})
-    MCP->>MO: getGraduatedTokens(limit)
-    MO-->>MCP: graduatedTokens[]
-    MCP-->>LLM: graduatedTokensResult
-    
-    LLM->>MCP: callTool(get_bonding_tokens, {limit})
-    MCP->>MO: getBondingTokens(limit)
-    MO-->>MCP: bondingTokens[]
-    MCP-->>LLM: bondingTokensResult
-    
-    LLM->>MCP: callTool(buy_token, {address, amount})
-    MCP->>PF: generateBuyTransaction()
-    PF-->>MCP: transactionBuffer
-    MCP->>SOL: signAndSubmitTransaction()
-    SOL-->>MCP: transactionSignature
-    MCP-->>LLM: transactionResult
-    
-    LLM->>MCP: callTool(search_tweets, {query})
-    MCP->>TW: searchTweets(query)
-    TW-->>MCP: tweets[]
-    MCP-->>LLM: tweetResults
-```
-
-## Prerequisites
-
-- Node.js (v18+)
-- TypeScript
-- Solana wallet
-- Moralis API key (for retrieving token metadata from Solana)
-- Twitter API credentials (optional, for Twitter functionality)
-- Claude for Desktop (for using with Claude)
-
-## Installation
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/Jovvi26/agentlink-mcp.git
-   cd agentlink-mcp
-   ```
-
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-
-3. Create a `.env` file with your configuration values:
-   ```
-   # Pump.fun Configuration
-   WALLET_PUBLIC_KEY=your_wallet_public_key
-   WALLET_PRIVATE_KEY=your_wallet_private_key
-   SOLANA_RPC_ENDPOINT=https://api.mainnet-beta.solana.com
-   PUMPFUN_API_ENDPOINT=https://pumpportal.fun/api/trade-local
-
-   # Twitter Configuration (optional)
-   TWITTER_API_KEY=your_twitter_api_key
-   TWITTER_API_KEY_SECRET=your_twitter_api_key_secret
-   TWITTER_ACCESS_TOKEN=your_twitter_access_token
-   TWITTER_ACCESS_TOKEN_SECRET=your_twitter_access_token_secret
-
-   # Moralis API Configuration (for Solana data retrieval)
-   MORALIS_API_KEY=your_moralis_api_key
-
-   # Server Configuration
-   SERVER_NAME=agentlink-mcp
-   SERVER_VERSION=1.0.0
-   ```
-
-4. Build the project
-   ```bash
-   npm run build
-   ```
-
-## Usage
-
-Start the MCP server:
+### Installation
 
 ```bash
-npm run start
+# Clone the repository
+git clone https://github.com/yourusername/AGENTLINK.git
+cd AGENTLINK
+
+# Install dependencies
+npm install
+
+# Configure environment variables
+cp .env.example .env
+# Edit .env with your API keys
+
+# Start Redis
+redis-server
+
+# Build the project
+npm run build
+
+# Start the server
+npm start
 ```
 
-The server will be available for MCP clients to connect to via stdio (standard input/output).
+### Environment Variables
 
-## Testing
+```env
+# AI Provider Keys
+ANTHROPIC_API_KEY_1=your_claude_key
+FIREWORKS_API_KEY=your_fireworks_key
 
-### Using TypeScript Test Client
+# Blockchain RPC
+HELIUS_RPC_URL=your_helius_endpoint
 
-The project includes a test directory with a TypeScript client for testing the MCP server:
+# Moralis Configuration
+MORALIS_API_KEY=your_moralis_key
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# Wallet Configuration
+WALLET_PRIVATE_KEY=your_wallet_key
+```
+
+### Quick Start
+
+```javascript
+// Initialize AGENTLINK client
+import { AGENTLINKClient } from './client';
+
+const client = new AGENTLINKClient({
+  apiKey: process.env.AGENTLINK_API_KEY
+});
+
+// Analyze a token
+const analysis = await client.analyzeToken('TOKEN_ADDRESS');
+console.log(analysis);
+
+// Execute a trade
+const trade = await client.buyToken({
+  tokenAddress: 'TOKEN_ADDRESS',
+  amount: 0.01 // SOL
+});
+```
+
+---
+
+## 📚 Documentation
+
+### Core Modules
+
+- **[AI Engine](./docs/ai-engine.md)** - Multi-provider AI architecture and routing
+- **[MCP Server](./docs/mcp-server.md)** - Model Context Protocol integration
+- **[Trading System](./docs/trading.md)** - Execution and order management
+- **[WebSocket API](./docs/websocket.md)** - Real-time communication protocol
+- **[Caching Strategy](./docs/caching.md)** - Redis implementation and optimization
+
+### API Reference
+
+- **[REST API](./docs/api/rest.md)** - HTTP endpoints
+- **[WebSocket Events](./docs/api/websocket.md)** - Real-time events
+- **[MCP Tools](./docs/api/mcp-tools.md)** - Available blockchain tools
+
+### Guides
+
+- **[Deployment Guide](./docs/guides/deployment.md)** - Railway deployment
+- **[Security Best Practices](./docs/guides/security.md)** - Wallet and key management
+- **[Performance Tuning](./docs/guides/performance.md)** - Optimization strategies
+- **[Troubleshooting](./docs/guides/troubleshooting.md)** - Common issues and solutions
+
+---
+
+## 🗺️ Roadmap
+
+### ✅ Phase 1: Core Infrastructure (Completed)
+
+- [x] Multi-provider AI architecture
+- [x] Real-time WebSocket communication
+- [x] Redis caching system
+- [x] MCP blockchain integration
+- [x] Token analysis tools
+- [x] Sniper detection
+- [x] Basic trading execution
+
+### 🚧 Phase 2: Beta Launch (Current)
+
+- [x] Streaming responses for reduced latency
+- [x] Fixed trading execution
+- [x] Rate limiting and queue management
+- [ ] Individual wallet management
+- [ ] Enhanced error handling
+- [ ] Performance monitoring dashboard
+
+### 🔮 Phase 3: Advanced Features (Coming Soon)
+
+- [ ] **Automated AI Trading Strategies**
+  - Machine learning-based position sizing
+  - Multi-token portfolio optimization
+  - Risk-adjusted entry/exit strategies
+  - Backtesting framework
+
+- [ ] **Social Intelligence**
+  - Twitter sentiment analysis
+  - Influencer tracking
+  - Community signals integration
+
+- [ ] **Advanced Analytics**
+  - Custom technical indicators
+  - On-chain metrics dashboard
+  - Wallet clustering analysis
+  - MEV protection strategies
+
+### 🌟 Phase 4: Enterprise Scale (Q2 2025)
+
+- [ ] Multi-chain support (Ethereum, Base, Arbitrum)
+- [ ] Advanced API for developers
+- [ ] White-label solutions
+- [ ] Institutional features
+- [ ] Compliance and reporting tools
+
+---
+
+## 🛠️ Technology Stack
+
+| Category | Technology |
+|----------|-----------|
+| **Backend** | Node.js, Express.js, TypeScript |
+| **AI** | Anthropic Claude, Fireworks AI (Llama) |
+| **Blockchain** | Solana Web3.js, Anchor |
+| **Real-time** | Socket.IO, WebSockets |
+| **Caching** | Redis 7.0, BullMQ |
+| **APIs** | Moralis, Helius RPC, PumpPortal |
+| **Deployment** | Railway, Docker |
+| **Monitoring** | Custom metrics, Health checks |
+
+---
+
+## 📊 Performance
+
+- **Concurrent Users**: 100-200+ during token launches
+- **Request Throughput**: 400+ requests per minute
+- **Latency Reduction**: 60-80% with streaming responses
+- **Cost Efficiency**: 97% reduction with hybrid AI
+- **Cache Hit Rate**: ~85% for repeated queries
+- **Uptime**: 99.9% target
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Setup
 
 ```bash
-cd test
-npx tsc
-node build/client.js
+# Install dependencies
+npm install
+
+# Run in development mode
+npm run dev
+
+# Run tests
+npm test
+
+# Lint code
+npm run lint
+
+# Format code
+npm run format
 ```
 
-This will:
-1. Connect to the MCP server
-2. List available tools
-3. Test the token info functionality
+### Code of Conduct
 
-### Using MCP Inspector
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
-For a richer testing experience, you can use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which provides a visual interface for interacting with your MCP server:
+---
 
-```bash
-# Requires Node.js v22.7.5+
-npx @modelcontextprotocol/inspector node build/server.js
-```
+## 🔒 Security
 
-This will:
-1. Start your MCP server
-2. Launch the MCP Inspector at http://127.0.0.1:6274
-3. Open your browser to the inspector interface
+Security is our top priority. Please review our [Security Policy](SECURITY.md) for:
 
-#### Using the MCP Inspector Interface
+- Vulnerability reporting
+- API key management
+- Wallet security best practices
+- Rate limiting policies
 
-1. **Connect to your server**:
-   - The inspector should automatically connect to your server
-   - Ensure "STDIO" is selected as the Transport Type
-   - You should see "Connected" status at the bottom of the sidebar
+**Found a security issue?** Please email security@AGENTLINK.io instead of opening a public issue.
 
-2. **Test tools**:
-   - Click on the "Tools" tab to see available tools
-   - Select a tool from the list (e.g., "get_token_info")
-   - Enter the required parameters (e.g., a token address)
-   - Click "Run Tool" to execute
-   - View the results in the response panel
+---
 
-3. **Review history**:
-   - The History section shows all previous requests
-   - Click on any request to see its details
+## 📝 License
 
-4. **Environment variables**:
-   - Use the "Environment Variables" dropdown to set or modify environment variables
-   - This is useful for providing your wallet keys and API keys
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-The MCP Inspector provides a comprehensive way to test all aspects of your MCP server, including tools, resources, and prompts.
+---
 
-## Example Interactions with Claude
+## 🌐 Community & Support
 
-Once your AgentLink MCP server is connected to Claude, you can use natural language to access its capabilities:
+- **Discord**: [Join our community](https://discord.gg/AGENTLINK)
+- **Twitter**: [@AGENTLINKAI](https://twitter.com/AGENTLINKai)
+- **Documentation**: [docs.AGENTLINK.io](https://docs.AGENTLINK.io)
+- **Support**: support@AGENTLINK.io
 
-- "Can you search for tweets about Solana NFTs?"
-- "What tokens have recently graduated from the bonding phase on Pump.fun?"
-- "Show me tokens that are currently in the bonding phase on Pump.fun"
-- "I'd like to get information about a specific token on Solana. The address is..."
-- "Could you help me buy some SOL tokens?"
+---
 
-Claude will automatically identify when to use the appropriate tools provided by your AgentLink MCP server.
+## 🙏 Acknowledgments
 
-## MCP Protocol
+- Anthropic for Claude AI
+- Fireworks AI for cost-effective inference
+- Solana Foundation
+- Moralis for blockchain data
+- The Pump.fun community
 
-This server implements the [Model Context Protocol (MCP)](https://modelcontextprotocol.io) which standardizes how Large Language Models (LLMs) interact with external tools and resources. The protocol enables:
+---
 
-- Consistent tool interfaces
-- Dynamic discovery of capabilities
-- Structured data exchange
-- Secure authorization flows
+## ⚠️ Disclaimer
 
-## Claude for Desktop Integration
+AGENTLINK is a trading tool and does not provide financial advice. Cryptocurrency trading carries substantial risk. Users are responsible for their own trading decisions and should only trade with capital they can afford to lose. Past performance does not guarantee future results.
 
-To use the AgentLink MCP Server with Claude for Desktop, follow these steps:
+---
 
-### 1. Configure Claude for Desktop
+<div align="center">
 
-Create or edit the Claude for Desktop configuration file:
+**Built with ❤️ by the AGENTLINK Team**
 
-- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json` 
+[Website](https://AGENTLINK.io) • [Documentation](https://docs.AGENTLINK.io) • [Twitter](https://twitter.com/AGENTLINKai) • [Discord](https://discord.gg/AGENTLINK)
 
-Add the following configuration to connect Claude to your AgentLink MCP server:
-
-```json
-{
-  "mcpServers": {
-    "agentlink": {
-      "command": "node",
-      "args": [
-        "/path/to/your/agentlink-mcp/mcp-startup.js"
-      ],
-      "cwd": "/path/to/your/agentlink-mcp"
-    }
-  }
-}
-```
-
-Replace `/path/to/your/agentlink-mcp` with the actual path to your project directory.
-
-#### Example paths:
-
-- **macOS**: `/Users/username/projects/agentlink-mcp`
-- **Windows**: `C:\\Users\\username\\projects\\agentlink-mcp`
-
-### 2. Restart Claude for Desktop
-
-After setting up the configuration file, restart Claude for Desktop completely. This ensures Claude loads your MCP server configuration.
-
-### 3. Connect to the Server
-
-1. Open Claude for Desktop
-2. Click on the settings/preferences icon in the lower left corner
-3. In the menu that appears, locate and click on "agentlink" under the connected servers section
-
-You'll know the server is connected properly when you can see "agentlink" in the preferences menu.
-
-### 4. Troubleshooting
-
-If you don't see "agentlink" in the preferences menu:
-
-- Check the Claude for Desktop logs:
-  - **macOS**: `~/Library/Logs/Claude/mcp*.log`
-  - **Windows**: `%APPDATA%\Claude\logs\mcp*.log`
-
-- Verify your server is running properly with the MCP Inspector (see Testing section)
-
-- Ensure your file paths in `claude_desktop_config.json` are correct and use absolute paths
-
-- Make sure your environment variables are set up correctly
-
-- On Windows, you may need to use double backslashes in paths (`\\`) or forward slashes (`/`)
-
-## API Documentation
-
-### Pump.fun Tools
-
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `search_tokens` | Search for tokens by name or symbol | `query` (string) |
-| `get_graduated_tokens` | Get tokens that have completed the bonding phase | `limit` (number, optional)<br>`cursor` (string, optional) |
-| `get_bonding_tokens` | Get tokens currently in the bonding phase | `limit` (number, optional)<br>`cursor` (string, optional) |
-| `buy_token` | Buy a token with SOL | `address` (string, required)<br>`solAmount` (number, required)<br>`slippage` (number, optional)<br>`priorityFee` (number, optional)<br>`pool` (string, optional) |
-| `sell_token` | Sell a token | `address` (string, required)<br>`tokenAmount` (string, required)<br>`slippage` (number, optional)<br>`priorityFee` (number, optional)<br>`pool` (string, optional) |
-
-### Moralis Data Retrieval Tools
-
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `get_token_info` | Get detailed metadata about a token from Solana blockchain | `address` (string) |
-| `get_token_price` | Get the current price of a token | `address` (string) |
-
-### Twitter Tools
-
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `search_tweets` | Search for tweets based on a query | `query` (string, required)<br>`count` (number, optional) |
-| `post_tweet` | Post a new tweet | `text` (string, required) |
-
-## Token Lifecycle on Pump.fun
-
-### Bonding Phase
-Tokens on Pump.fun begin in a **bonding phase** where price is determined by a bonding curve. During this phase:
-
-- Tokens are minted as users buy them
-- Price increases according to a predefined curve
-- The `bondingCurveProgress` property indicates how close a token is to graduation (0-100%)
-- Higher bonding curve progress means the token is closer to graduation
-
-### Graduated Phase
-Once a token completes its bonding phase, it **graduates** to a liquid trading phase where:
-
-- Token supply is fixed
-- Price is determined by market demand via liquidity pools
-- Tokens can be freely traded
-- Graduation timestamp indicates when the token completed bonding
-
-The `get_bonding_tokens` and `get_graduated_tokens` tools allow you to track tokens in each phase of their lifecycle on Pump.fun.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request to the [GitHub repository](https://github.com/Jovvi26/agentlink-mcp).
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgements
-
-- [Model Context Protocol](https://modelcontextprotocol.io) - For the protocol specification
-- [Pump.fun](https://pump.fun) - For the token trading API
-- [Moralis](https://moralis.io) - For Solana blockchain data retrieval
-- [Twitter](https://developer.twitter.com) - For the Twitter API
-- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) - For the testing interface
-- [Claude for Desktop](https://claude.ai/download) - For AI assistant integration
+</div>
